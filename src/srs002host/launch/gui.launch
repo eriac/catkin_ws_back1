@@ -1,0 +1,11 @@
+<launch>
+  <arg name="model" default="$(find srs002host)/urdf/arm.urdf.xacro"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)" />
+  <group ns="gui">
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find srs002host)/config/SETTING.rviz" required="true" />
+    <node name="joy_node" pkg="joy" type="joy_node" />
+    <node name="joy_commander" pkg="srs002host" type="joy_commander" />
+  </group>
+</launch>
+

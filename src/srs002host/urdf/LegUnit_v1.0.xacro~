@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="one_arm">
+<xacro:property name="pi" value="3.1415926535897931" />
+<!--LegUnit ver1.0-->
+<xacro:macro name="LegUnit" params="prefix:=LegUnit origin_x:=0 origin_y:=0 origin_angle:=0 
+home_x:=0 home_y:=0 home_z:=0 body_material:=gray">
+  <!--Data-->
+  <Legdata ID="00" Side="R" Groupe="A" Type="E">
+    <Origin x="${origin_x *1000}" y="${origin_y *1000}" z="0"/>
+    <Home x="${home_x *1000}" y="${home_y *1000}" z="${home_z *1000}"/>
+    <ArmLength a0="30" a1="50" a2="70" a3="34" a4="90"/>
+    <Spring rate="1.57"/> 
+  </Legdata>
+  <!--links-->
+  <link name="${prefix}_link0">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://crane_urdf/urdf/asmA2.stl"/>
+      </geometry>
+      <material name="${body_material}">
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.2" iyy="1.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+  <link name="${prefix}_link1">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://crane_urdf/urdf/asmAB2.stl"/>
+      </geometry>
+      <material name="${body_material}">
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.2" iyy="1.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+  <link name="${prefix}_link2">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://crane_urdf/urdf/asmB2.stl"/>
+      </geometry>
+      <material name="${body_material}">
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.2" iyy="1.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+  <link name="${prefix}_link3">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://crane_urdf/urdf/asmC2.stl"/>
+      </geometry>
+      <material name="${body_material}">
+      </material>
+    </visual>
+    <inertial>
+      <mass value="0.1"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.2" iyy="1.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <!--joints-->
+  <joint name="${prefix}_jointb" type="fixed">
+    <parent link="base_link"/>
+    <child link="${prefix}_link0"/>
+    <origin xyz="${origin_x} ${origin_y} 0" rpy="0 0 ${origin_angle/90*pi/2}"/>
+  </joint>
+  <joint name="${prefix}_joint0" type="revolute">
+    <parent link="${prefix}_link0"/>
+    <child link="${prefix}_link1"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.03 0 0"/>
+    <limit effort="0.01" lower="-2.0" upper="2.0" velocity="0.5"/>
+  </joint>
+  <joint name="${prefix}_joint1" type="revolute">
+    <parent link="${prefix}_link1"/>
+    <child link="${prefix}_link2"/>
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.05 0 0"/>
+    <limit effort="0.01" lower="-2.0" upper="2.0" velocity="0.5"/>
+  </joint>
+  <joint name="${prefix}_joint2" type="revolute">
+    <parent link="${prefix}_link2"/>
+    <child link="${prefix}_link3"/>
+    <axis xyz="0 1 0"/>
+    <origin xyz="0.07 0 0"/>
+    <limit effort="0.01" lower="-2.0" upper="2.0" velocity="0.5"/>
+  </joint>
+</xacro:macro>
+</robot>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="one_arm">
+<xacro:include filename="LegUnit_v1.0.xacro" />
+<material name="gray">
+  <color rgba="0.8 0.8 0.8 1"/>
+</material>
+<material name="gray-blue">
+  <color rgba="0.8 0.8 1.0 1"/>
+</material>
+
+<!--base link-->
+<link name="base_link">
+</link>
+<xacro:GunUnit prefix="gun0" origin_x="+0.1" origin_y="+0.03" origin_angle="+90" body_material="gray"/>
+
+
+</robot>

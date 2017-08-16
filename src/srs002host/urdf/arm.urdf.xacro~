@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="one_arm">
+<xacro:include filename="LegUnit_v1.0.xacro" />
+<xacro:include filename="GunUnit_v1.0.xacro" />
+
+<material name="gray">
+  <color rgba="0.8 0.8 0.8 1"/>
+</material>
+<material name="gray-blue">
+  <color rgba="0.8 0.8 1.0 1.5"/>
+</material>
+
+<!--base link-->
+<link name="base_link">
+</link>
+
+<link name="body_link0">
+  <visual>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <geometry>
+      <mesh filename="package://crane_urdf/urdf/mainbody.stl"/>
+    </geometry>
+    <material name="gray-blue">
+    </material>
+  </visual>
+  <inertial>
+    <mass value="0.1"/>
+    <inertia ixx="1.0" ixy="0.0" ixz="0.2" iyy="1.0" iyz="0.0" izz="0.0"/>
+  </inertial>
+</link>
+<joint name="$body_jointb" type="fixed">
+  <parent link="base_link"/>
+  <child link="body_link0"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+</joint>
+
+<xacro:LegUnit prefix="leg0" origin_x="+0.1" origin_y="+0.03" origin_angle="+90" body_material="gray"/>
+<xacro:LegUnit prefix="leg1" origin_x="+0.0" origin_y="+0.03" origin_angle="+90" body_material="gray"/>
+<xacro:LegUnit prefix="leg2" origin_x="-0.1" origin_y="+0.03" origin_angle="+90" body_material="gray"/>
+
+<xacro:LegUnit prefix="leg3" origin_x="+0.1" origin_y="-0.03" origin_angle="-90" body_material="gray"/>
+<xacro:LegUnit prefix="leg4" origin_x="+0.0" origin_y="-0.03" origin_angle="-90" body_material="gray"/>
+<xacro:LegUnit prefix="leg5" origin_x="-0.1" origin_y="-0.03" origin_angle="-90" body_material="gray"/>
+
+<xacro:GunUnit prefix="gun0" origin_x="-0.05" origin_y="+0.00" origin_angle="0" body_material="gray"/>
+
+</robot>

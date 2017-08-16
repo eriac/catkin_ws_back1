@@ -1,0 +1,21 @@
+<launch>
+  <arg name="robot_name" default="robot"/>
+  <arg name="sim" default="false"/>
+  <group ns="gun">
+    <node name="gun_candriver" pkg="srs002host" type="gun_candriver" >
+      <remap from="CANLink_out" to="/$(arg robot_name)/comport/CANLink_out" />
+      <remap from="gundir" to="/$(arg robot_name)/gui/gundir" />
+      <remap from="gunmode" to="/$(arg robot_name)/gui/gunmode" />
+      <remap from="gunlight" to="/$(arg robot_name)/gui/gunlight" />
+    </node>
+    <node name="gun_joint_read" pkg="srs002host" type="gun_joint_read" >
+      <remap from="CANLink_in"  to="/$(arg robot_name)/comport/CANLink_in" />
+      <remap from="CANLink_out" to="/$(arg robot_name)/comport/CANLink_out" />
+      <remap from="joint_states" to="/$(arg robot_name)/gui/joint_states" />
+    </node>
+    <node if="$(arg sim)" name="gun_joint_sim" pkg="srs002host" type="gun_joint_sim" >
+      <remap from="CANLink_in"  to="/$(arg robot_name)/comport/CANLink_in" />
+      <remap from="CANLink_out" to="/$(arg robot_name)/comport/CANLink_out" />
+    </node>
+  </group>
+</launch>

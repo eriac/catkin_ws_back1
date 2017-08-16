@@ -1,0 +1,62 @@
+#include "ros/ros.h"
+
+#include "std_msgs/Float64.h"  
+#include "std_msgs/Sreing.h"
+#include "sensor_msgs/JointState.h"
+#include "sensor_msgs/Joy.h"
+#include "crane_urdf/CANLink.h"
+
+#include <sstream>
+#include <string>
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+
+int canlink_to_serial(std::string *outstring, crane_urdf::CANLink cancode, std::string option){
+	char tmp_data[2];
+	std::string midstring;
+	midstring ="#CANLINK."+option;
+	sprintf(tmp_data,"%d",cancode.id);
+	midstring+="-ID."+std::string(tmp_data);
+	sprintf(tmp_data,"%d",cancode.com);
+	midstring+="-COM."+std::string(tmp_data);
+	if(cancode.length!=0){
+		midstring+=":";
+		for(int i=0;i<cancode.length;i++){
+			sprintf(tmp_data,"%02X",cancode.data[i]);
+			midstring+=std::string(tmp_data);
+		}
+	}
+	midstring+=";";
+	*outstring=midstring;
+	return 0;
+}
+
+ros::Publisher  serial_pub;
+void canlink_callback(const crane_urdf::CANLink& canlink_msg){
+	std::string outdata;
+
+	canlink_to_serial(&outdata,canlink_msg,"B");
+	std_msgs::String msg;
+	msg.data=outdata;
+	serial_pub.publish(msg);
+	//printf("%s\n",outdata.c_str());
+} 
+int main(int argc, char **argv)
+{
+	ros::init(argc, argv, "can_to_serial");
+	ros::NodeHandle n;
+	//publicher
+	serial_pub = n.advertise<std_msgs::String>("/Serial_out", 1000);
+	//Subscriber
+	ros::Subscriber canlink_sub = n.subscribe("/CANLink_out", 10, canlink_callback); 
+	
+	ros::Rate loop_rate(10); 
+	while (ros::ok()){ 		
+		ros::spinOnce();
+		loop_rate.sleep();
+	} 
+ 	return 0;
+}
+

@@ -1,0 +1,9 @@
+<launch>
+  <!--
+ -->
+  <node name="joy_node" pkg="joy" type="joy_node" />
+  <node name="leg6_commander" pkg="crane_urdf" type="leg6_commander" />
+  <node name="joy_commander" pkg="crane_urdf" type="joy_commander" />
+  <node name="leg_candriver" pkg="crane_urdf" type="leg_candriver" output="screen"/>
+  
+</launch>

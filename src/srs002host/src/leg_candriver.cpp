@@ -1,0 +1,92 @@
+#include "ros/ros.h"
+
+#include "math.h"  
+#include "srs_common/CANCode.h"
+#include "srs002host/LegPoint.h"
+#include "geometry_msgs/PointStamped.h"
+#include "tf/transform_listener.h"
+
+#include <string>
+#include <sstream>
+
+float anticulc1(float rod1, float rod2, float pl, float pz){
+	float ret=acos((rod1 * rod1 + pl * pl + pz * pz - rod2 * rod2) / (2 * rod1 * sqrt(pl * pl + pz * pz))) + atan2(pz, pl);
+	return ret;
+}
+float anticulc2(float  rod1, float rod2, float pl, float pz){
+	float ret=acos((rod1 * rod1 + rod2 * rod2 - (pl * pl + pz * pz)) / (2 * rod1 * rod2)) - (3.141592);
+	return ret;
+}
+ros::Publisher  canlink_pub;
+tf::TransformListener *p_tfl;
+void legpoint_out_callback(const srs002host::LegPoint legpoint){
+	geometry_msgs::PointStamped target_point;
+	//p_tfl->waitForTransform(legpoint.target_frame_id, legpoint.header.frame_id, ros::Time(0), ros::Duration(0.1));	
+	geometry_msgs::PointStamped point0;
+	point0.header=legpoint.header;
+	point0.point=legpoint.point;
+	//p_tfl->transformPoint(legpoint.target_frame_id, legpoint.header.stamp, point0, legpoint.header.frame_id, target_point);
+	p_tfl->transformPoint(legpoint.target_frame_id, ros::Time(0), point0, legpoint.header.frame_id, target_point);
+	
+	try{	
+		float arms[5]={0.03, 0.05, 0.07, 0.034, 0.090};	
+		float lx=target_point.point.x;
+		float ly=target_point.point.y;
+		float lz=target_point.point.z;
+		float angle[3];
+		float armv = sqrt(arms[3]*arms[3] + arms[4]*arms[4]);
+		float armvangleoffset = atan2(arms[4], arms[3]);
+		float pl=sqrt((lx-arms[0])*(lx-arms[0])+ly*ly)-arms[1];
+		angle[0]=-atan2(ly,lx-arms[0]);
+		angle[1]=-anticulc1(arms[2],armv,pl,lz);
+		angle[2]=-anticulc2(arms[2],armv,pl,lz)-armvangleoffset;
+	
+		if(legpoint.target_frame_id=="leg0_link0"){
+			printf("leg0:%f,%f,%f\n",angle[0],angle[1],angle[2]);
+		}
+		int data0=(angle[0]*4000/3.141592)+7500;
+		int data1=(angle[1]*4000/3.141592)+7500;
+		int data2=(angle[2]*4000/3.141592)+7500;
+		if(isnan(angle[0])||isnan(angle[1])||isnan(angle[2]))throw 1;
+
+		srs_common::CANCode cancode;
+		cancode.channel="A";
+		cancode.id=legpoint.target_id;
+		cancode.com=1;
+		cancode.length=8;
+		cancode.data[0]=(data0>>8)&0xff;
+		cancode.data[1]=(data0>>0)&0xff;
+		cancode.data[2]=(data1>>8)&0xff;
+		cancode.data[3]=(data1>>0)&0xff;
+		cancode.data[4]=(data2>>8)&0xff;
+		cancode.data[5]=(data2>>0)&0xff;
+		cancode.data[6]=2;
+		cancode.data[7]=legpoint.delay/10;
+		canlink_pub.publish(cancode);
+	}
+	catch (int e){
+		printf("error\n");
+	}
+}
+int main(int argc, char **argv)
+{
+	ros::init(argc, argv, "leg_candriver");
+	ros::NodeHandle n;
+	tf::TransformListener tflistener;
+
+	p_tfl=&tflistener;
+	//publish
+	canlink_pub = n.advertise<srs_common::CANCode>("CANLink_out", 1000);
+	//subscriibe
+	ros::Subscriber legpoint_out_sub   = n.subscribe("LegPoint_out", 10, legpoint_out_callback); 
+
+	ros::Duration(1.0).sleep();
+	
+	ros::Rate loop_rate(10); 
+	while (ros::ok()){
+		ros::spinOnce();
+		loop_rate.sleep();
+	} 
+ 	return 0;
+}
+

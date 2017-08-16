@@ -1,0 +1,6 @@
+std_msgs/Header header
+geometry_msgs/Point point
+int32 id
+int32 com
+int32 length
+int32[8] data

@@ -1,0 +1,19 @@
+<launch>
+  <arg name="robot_name" value="srs002"/>
+  <arg name="sim" default="false" />
+  <group ns="$(arg robot_name)">
+    <include file="$(find srs002host)/launch/gui.launch" />
+    <include file="$(find srs_common)/launch/comport.launch" />
+
+    <include file="$(find srs002host)/launch/legs_control.launch" >
+      <arg name="robot_name" value="$(arg robot_name)" />
+      <arg name="sim" value="$(arg sim)" />
+    </include>
+<!--
+    <include file="$(find srs002host)/launch/gun_control.launch" >
+      <arg name="robot_name" value="$(arg robot_name)" />
+      <arg name="sim" value="$(arg sim)" />
+    </include>
+-->
+  </group>
+</launch>

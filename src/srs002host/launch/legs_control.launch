@@ -1,0 +1,22 @@
+<launch>
+  <arg name="robot_name" default="robot"/>
+  <arg name="sim" default="false"/>
+  <group ns="legs">
+    <node name="leg6_commander" pkg="srs002host" type="leg6_commander" >
+      <remap from="twist" to="/$(arg robot_name)/gui/twist" />
+      <remap from="movemode" to="/$(arg robot_name)/gui/movemode" />
+    </node>
+    <node name="leg_candriver" pkg="srs002host" type="leg_candriver" >
+      <remap from="CANLink_out" to="/$(arg robot_name)/comport/CANLink_out" />
+    </node>
+    <node name="leg_joint_read" pkg="srs002host" type="leg_joint_read" >
+      <remap from="CANLink_in"  to="/$(arg robot_name)/comport/CANLink_in" />
+      <remap from="CANLink_out" to="/$(arg robot_name)/comport/CANLink_out" />
+      <remap from="joint_states" to="/$(arg robot_name)/gui/joint_states" />
+    </node>
+    <node if="$(arg sim)" name="leg_joint_sim" pkg="srs002host" type="leg_joint_sim" >
+      <remap from="CANLink_in"  to="/$(arg robot_name)/comport/CANLink_in" />
+      <remap from="CANLink_out" to="/$(arg robot_name)/comport/CANLink_out" />
+    </node>
+  </group>
+</launch>
